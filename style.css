@@ -20,27 +20,23 @@ body, html {
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     z-index: 100;
-    min-width: 250px;
 }
 
-.info-item {
-    margin: 8px 0;
+button {
+    background: #0079c1;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 10px;
 }
 
-.label {
-    font-weight: bold;
-    color: #333;
-    display: block;
-    margin-bottom: 3px;
+button:hover {
+    background: #005a8c;
 }
 
-#coordinates, #length {
-    color: #666;
+#lengthDisplay {
     font-size: 0.9em;
-}
-
-.esri-sketch__panel {
-    background: rgba(255, 255, 255, 0.9) !important;
-    border-radius: 8px !important;
-    padding: 10px !important;
+    color: #333;
 }
