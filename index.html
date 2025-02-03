@@ -3,20 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medidor de Extensão Geográfica</title>
+    <title>Medidor de Extensão em WebMap</title>
     <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="info-panel">
-        <div class="info-item">
-            <span class="label">Coordenada Inicial:</span>
-            <span id="coordinates">-</span>
-        </div>
-        <div class="info-item">
-            <span class="label">Extensão:</span>
-            <span id="length">0 metros</span>
-        </div>
+        <button id="drawBtn">Criar Linha</button>
+        <div id="lengthDisplay">Extensão: 0 metros</div>
     </div>
     <div id="viewDiv"></div>
 
