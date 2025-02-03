@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medidor de Extensão Geográfica</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="info-panel">
+        <div class="info-item">
+            <span class="label">Coordenada Inicial:</span>
+            <span id="coordinates">-</span>
+        </div>
+        <div class="info-item">
+            <span class="label">Extensão:</span>
+            <span id="length">0 metros</span>
+        </div>
+    </div>
+    <div id="viewDiv"></div>
+
+    <script src="https://js.arcgis.com/4.29/"></script>
+    <script src="app.js"></script>
+</body>
+</html>
