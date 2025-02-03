@@ -7,13 +7,14 @@ require([
     "esri/identity/IdentityManager"
 ], function(WebMap, MapView, Sketch, GraphicsLayer, geometryEngine, IdentityManager) {
 
-    // Configuração do WebMap existente
+    // 1. Configurar WebMap existente (substitua o ID)
     const webmap = new WebMap({
         portalItem: {
-            id: "a4a183940a154ff7969ed40696fcefba" // Substituir pelo ID do seu WebMap
+            id: "a4a183940a154ff7969ed40696fcefba"
         }
     });
 
+    // 2. Configurar a view do mapa
     const view = new MapView({
         container: "viewDiv",
         map: webmap
@@ -22,11 +23,16 @@ require([
     let sketch;
     const graphicsLayer = new GraphicsLayer();
 
-    // Adiciona camada gráfica para as linhas
-    webmap.add(graphicsLayer);
+    // 3. Autenticação automática via portal do ArcGIS
+    IdentityManager.getCredential(webmap.portalItem.portal.url)
+        .then(() => initializeApp())
+        .catch(error => console.error("Erro de autenticação:", error));
 
-    // Configuração do Sketch
-    view.when(() => {
+    function initializeApp() {
+        // 4. Adicionar camada gráfica temporária
+        webmap.add(graphicsLayer);
+
+        // 5. Configurar ferramenta de desenho
         sketch = new Sketch({
             view: view,
             layer: graphicsLayer,
@@ -34,29 +40,23 @@ require([
             availableCreateTools: ["polyline"]
         });
 
+        // 6. Evento de criação da linha
         sketch.on("create", (event) => {
             if (event.state === "complete") {
                 const geometry = event.graphic.geometry;
-                calculateLength(geometry);
+                const length = geometryEngine.geodesicLength(geometry, "meters");
+                updateLengthDisplay(length);
             }
         });
-    });
 
-    // Função de cálculo
-    function calculateLength(geometry) {
-        const length = geometryEngine.geodesicLength(geometry, "meters");
+        // 7. Ativar interface do usuário
+        document.getElementById("drawBtn").addEventListener("click", () => {
+            sketch.create("polyline");
+        });
+    }
+
+    function updateLengthDisplay(length) {
         const display = `Extensão: ${length.toFixed(2)}m (${(length/1000).toFixed(3)}km)`;
         document.getElementById("lengthDisplay").textContent = display;
     }
-
-    // Controle do botão
-    document.getElementById("drawBtn").addEventListener("click", () => {
-        sketch.create("polyline");
-    });
-
-    // Autenticação OAuth
-    IdentityManager.registerOAuthInfos([{
-        appId: "SEU_CLIENT_ID", // Registrar aplicação no Developers Dashboard
-        portalUrl: "https://environpact.maps.arcgis.com/"
-    }]);
 });
