@@ -1,76 +1,62 @@
 require([
-    "esri/Map",
+    "esri/WebMap",
     "esri/views/MapView",
     "esri/widgets/Sketch",
+    "esri/layers/GraphicsLayer",
     "esri/geometry/geometryEngine",
-    "esri/Graphic"
-], function(Map, MapView, Sketch, geometryEngine, Graphic) {
+    "esri/identity/IdentityManager"
+], function(WebMap, MapView, Sketch, GraphicsLayer, geometryEngine, IdentityManager) {
 
-    // Configuração inicial do mapa
-    const map = new Map({
-        basemap: "topo-vector"
+    // Configuração do WebMap existente
+    const webmap = new WebMap({
+        portalItem: {
+            id: "a4a183940a154ff7969ed40696fcefba" // Substituir pelo ID do seu WebMap
+        }
     });
 
     const view = new MapView({
         container: "viewDiv",
-        map: map,
-        center: [-47.8825, -15.7942], // Coordenadas de Brasília
-        zoom: 12
+        map: webmap
     });
 
     let sketch;
+    const graphicsLayer = new GraphicsLayer();
 
-    // Inicializa a ferramenta de desenho
+    // Adiciona camada gráfica para as linhas
+    webmap.add(graphicsLayer);
+
+    // Configuração do Sketch
     view.when(() => {
         sketch = new Sketch({
             view: view,
-            layer: new Graphic({
-                symbol: {
-                    type: "simple-line",
-                    color: [226, 119, 40, 0.8],
-                    width: 4,
-                    style: "solid"
-                }
-            }),
-            creationMode: "single"
+            layer: graphicsLayer,
+            creationMode: "single",
+            availableCreateTools: ["polyline"]
         });
 
-        view.ui.add(sketch, "top-right");
-
-        // Evento de criação da linha
         sketch.on("create", (event) => {
-            if(event.state === "complete") {
+            if (event.state === "complete") {
                 const geometry = event.graphic.geometry;
-                
-                // Captura primeira coordenada
-                const startPoint = geometry.paths[0][0];
-                const longitude = startPoint[0].toFixed(5);
-                const latitude = startPoint[1].toFixed(5);
-                
-                // Calcula extensão
-                const meters = geometryEngine.geodesicLength(geometry, "meters");
-                const kilometers = (meters / 1000).toFixed(3);
-                
-                // Atualiza display
-                document.getElementById("coordinates").textContent = `${longitude}, ${latitude}`;
-                document.getElementById("length").textContent = 
-                    `${meters.toFixed(2)} metros | ${kilometers} km`;
+                calculateLength(geometry);
             }
         });
     });
 
-    // Geolocalização automática
-    view.when(() => {
-        if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    view.center = [position.coords.longitude, position.coords.latitude];
-                    view.zoom = 14;
-                },
-                (error) => {
-                    console.log("Geolocalização não permitida: ", error);
-                }
-            );
-        }
+    // Função de cálculo
+    function calculateLength(geometry) {
+        const length = geometryEngine.geodesicLength(geometry, "meters");
+        const display = `Extensão: ${length.toFixed(2)}m (${(length/1000).toFixed(3)}km)`;
+        document.getElementById("lengthDisplay").textContent = display;
+    }
+
+    // Controle do botão
+    document.getElementById("drawBtn").addEventListener("click", () => {
+        sketch.create("polyline");
     });
+
+    // Autenticação OAuth
+    IdentityManager.registerOAuthInfos([{
+        appId: "SEU_CLIENT_ID", // Registrar aplicação no Developers Dashboard
+        portalUrl: "https://environpact.maps.arcgis.com/"
+    }]);
 });
